@@ -1070,9 +1070,31 @@ def plot_fesete_debug(JSON, line_num=0, t_max=273, t_min=0, polar="LH"):
 
                 elif line_num == j["line_num"]:
                     appnd(j["line_num"])
-                
-            
-
+    
+    # plot AVR line
+    if polar == "all":
+        block_names = []
+        avr_data = []
+        for j in JSON["data"]:
+            if j["name"] in block_names:
+                continue
+            else:
+                print("NAME: ", j["name"], "num: ", j["line_num"], "lvl: ", j["line_lvl"])
+                for k in JSON["data"]:
+                    if k["name"] == j["name"] and k["line_num"] != j["line_num"]:
+                        print("             ",k["line_num"], "lvl: ", k["line_lvl"])
+                        avr_point = np.average([k["line_lvl"], j["line_lvl"]])
+                        data = {
+                            "name": j["name"],
+                            "temp": j["temp"],
+                            "avr_point": avr_point,
+                        }
+                        avr_data.append(data)
+                block_names.append(j["name"])
+    # print([(avr["temp"], avr["avr_point"]) for avr in avr_data])
+    for i in range(len(avr_data)):
+        ax.scatter(avr_data[i]["temp"], avr_data[i]["avr_point"], color="green", picker=5, s=85, marker="s")
+    
     x = [a["temp"] for a in json_plot]
     y = [a["line_lvl"] for a in json_plot]
     for i in range(len(x)):
@@ -1531,7 +1553,6 @@ def spectr_vscurv():
     ax2.tick_params(axis='y', labelleft='off', labelright='off', left=False, right=False)
     plt.show()
 
- 
 def many_curvature():
     arr_filter = {
         #("data_igor/FSS3_001.txt",)
@@ -1696,7 +1717,7 @@ with open("data_FeSeTe.json") as fp:
 #FOR debug
 fermi_recalc(JSON)
 chiterstvo(JSON)
-"""
+
 JSON = data_filter(JSON)
 plot_fesete_debug(
     JSON=JSON,
@@ -1705,23 +1726,15 @@ plot_fesete_debug(
     t_max=270,
     polar="all"
 )
-"""
-#plot_fesete_2D()
 
-
-
-
-
-
-
+# plot_fesete_2D()
 
 
 # Функції для графіків
 #
 #graph_curv_2deriv()
-spectr_vscurv()
+# spectr_vscurv()
 #many_curvature()
-
 
 
 
